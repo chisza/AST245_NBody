@@ -128,7 +128,7 @@ def shell_masses(rho_of_shells, shell_boundaries, shell_thickness):
 	# calculate the density for each shell
 	shell_density_masses = shell_thickness * shell_boundaries[1:] ** 2 * rho_of_shells
 
-	# TODO this includes the mass density of the shell the particle is in
+	# QUESTION this includes the mass density of the shell the particle is in
 	# is that how it works?
 	# If the shell the particle is in is not included, what happens
 	# with the particles in the inner most shell?

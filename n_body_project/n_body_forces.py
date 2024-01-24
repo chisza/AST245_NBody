@@ -4,11 +4,9 @@ import matplotlib.pyplot as plt
 
 
 @jit(nopython=True, parallel=True)
-def direct_force_calculation(particle_number, mass, x_cord, y_cord, z_cord, softening):
+def direct_force_calculation(mass, x_cord, y_cord, z_cord, softening):
 	"""Calculate the forces with a brute force calculation
 
-	@param particle_number: the IDs of the particles as an array
-	@type particle_number: np.ndarray
 	@param mass:  total_mass of the particles as an array
 	@type mass: np.ndarray
 	@param x_cord: x coordinates as an array
@@ -25,12 +23,15 @@ def direct_force_calculation(particle_number, mass, x_cord, y_cord, z_cord, soft
 	"""
 
 	G = 1.0
-	N = len(particle_number)
+	N = len(x_cord)
 	# initialize empty arrays for the acceleration
 	ax_accel, ay_accel, az_accel = np.zeros_like(x_cord), np.zeros_like(y_cord), np.zeros_like(z_cord)
 
 	# initialize empty arrays for the forces
 	Fx, Fy, Fz, abs_F = np.zeros_like(x_cord), np.zeros_like(y_cord), np.zeros_like(z_cord), np.zeros_like(x_cord)
+
+	if isinstance(softening, int):
+		softening = [softening * len(x_cord)]
 
 	print("Begin brute force calculation")
 	print(softening)
@@ -58,11 +59,13 @@ def direct_force_calculation(particle_number, mass, x_cord, y_cord, z_cord, soft
 
 	abs_r = np.sqrt(x_cord ** 2 + y_cord ** 2 + z_cord ** 2)
 
+	accelerations = (ax_accel, ay_accel, az_accel)
+
 	print(len(abs_F))
 
 	print("Finished brute force calculation")
 
-	return Fx, Fy, Fz, abs_F, abs_r
+	return abs_F, abs_r, accelerations
 
 
 @jit(nopython=True)
@@ -235,7 +238,7 @@ def softening_plot(soft_values, particle_number, mean_int, mass, x_cord, y_cord,
 
 	for i in soft_values:
 		softening[:] = i
-		Fx, Fy, Fz, F_abs, r_abs = direct_force_calculation(particle_number, mass, x_cord, y_cord, z_cord, softening)
+		F_abs, r_abs, accel = direct_force_calculation(mass, x_cord, y_cord, z_cord, softening)
 		F_abs_sort = np.rec.fromarrays([F_abs, r_abs], dtype=np.dtype([('F_abs', np.float32), ('r_abs', np.float32)])) # find the permutation to sort r_abs fro lowest to highest
 		F_abs_sort.sort()
 

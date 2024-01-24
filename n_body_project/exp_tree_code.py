@@ -4,6 +4,7 @@ import numpy as np
 # start out with a quadtree to get the idea
 # TODO when it is running as it should, expand it to an OctTree
 
+
 class Point:
 	def __init__(self, x_coordinate, y_coordinate, mass):
 		self.x = x_coordinate
@@ -29,7 +30,6 @@ class QuadTreeNode:
 		self.children = []
 		self.max_items = 1
 		self.theta = 0.5
-
 
 	def add_point(self, point):
 		# check if the current node is full
@@ -77,7 +77,7 @@ class QuadTreeNode:
 			child.calculate_center_of_mass()
 
 
-	def calculate_center_of_mass(self):
+	def calculate_center_of_mass(self, point):
 		# check if the node has children
 		if self.children:
 			total_mass = 0
@@ -95,12 +95,20 @@ class QuadTreeNode:
 				self.x_com = x_com / total_mass
 				self.y_com = y_com / total_mass
 
+		# QUESTION else the center of mass is the center of mass of the
+		# particle in the node and its mass is its mass
+		# something like this, but this is not correct, or is it?
+		else:
+			self.total_mass = point.mass
+			self.x_com = point.x
+			self.y_com = point.y
+
 
 	def add_point_to_child(self, point):
 		# add a given point to the correct child
 		# loop over all children, determine to which child it belongs
 		for child in self.children:
-			if point.x >= child.xmin and point.x <= child.xmax and point.y >= child.ymin and point.y <= child.ymax:
+			if child.xmin <= point.x <= child.xmax and child.ymin <= point.y <= child.ymax:
 				child.add_point(point)
 				# after the point has been added to a child,
 				# further search is not possible
@@ -113,11 +121,13 @@ class QuadTreeNode:
 		print(vector_radius)
 		abs_radius = np.linalg.norm(vector_radius)
 		print(abs_radius)
+		print(f"abs_radius type{type(abs_radius)}")
 		# check distance
 		# FIXME This is not working
 		if (self.xmax - self.xmin) / abs_radius < self.theta:
 			# if distance okay
 			# force calculation with com
+			print("This node is far away enough")
 			# else:
 			# go recursivley through children
 			if self.children:
@@ -125,6 +135,8 @@ class QuadTreeNode:
 
 		else:
 			if self.points is not None and len(self.points) == 1:
+				# when there are no points in the node, we do not need to calculate it
+				# as the node is empty -> no force
 				# calculate the distance between the root particle
 				# and the current particle
 				G = 1.

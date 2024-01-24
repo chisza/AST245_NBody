@@ -7,6 +7,7 @@ from particle_density import *
 from n_body_forces import *
 from n_body_shells import *
 from exp_tree_code import *
+from time_integration import *
 
 # ------------------------------------------------------------------------------
 
@@ -27,6 +28,9 @@ particle_density_plot = particle_density(mass, x_cord, y_cord, z_cord, bin_numbe
 particle_density_plot.savefig("n_body_project/plots/density_profile.png")
 # plt.show()
 plt.close(particle_density_plot)
+
+# test time integration
+leap_frog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, 1, 1)
 
 # ------------------------------------------------------------------------------
 # Task 1: Step 2
