@@ -3,8 +3,11 @@
 ### Libraries
 
 ```numba```: optimized running with decorater ```@jit(nopython=True)```, can also easily be parallelized with ```@jit(nopython=True, parallel=True)``` and using ```prange``` instead of ```range``` in the forloop -> careful: race condtion
+
 ```numpy```: allows vectorized calculations, improves performance as well
+
 ```matplotlib```: for plotting
+
 ```scipy.optimize```: from this library use the function ```curve_fit``` to fit a curve
 
 ### Data extraction

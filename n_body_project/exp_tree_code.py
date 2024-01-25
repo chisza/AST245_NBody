@@ -71,11 +71,18 @@ class QuadTreeNode:
 		self.children.append(QuadTreeNode(child_xmid, child_ymid, self.xmax, self.ymax))
 		self.children.append(QuadTreeNode(child_xmid, self.ymin, self.xmax, child_ymid))
 
+		# divide points onto the nodes
+		for current_points in self.points:
+			self.add_point_to_child(current_points)
+
+		# reset the point list to 0
+		self.points = []
+
 		# after splitting the node, each child needs the center of total_mass coordinates
 		# and the total total_mass calculated
 		for child in self.children:
-			child.calculate_center_of_mass()
 
+			pass
 
 	def calculate_center_of_mass(self, point):
 		# check if the node has children
@@ -151,31 +158,33 @@ class QuadTreeNode:
 
 # Implementation
 # def plot_quadtree(node, ax=None):
-#     if ax is None:
-#         _, ax = plt.subplots()
-#
-#     ax.plot([node.xmin, node.xmin, node.xmax, node.xmax, node.xmin],
-#             [node.ymin, node.ymax, node.ymax, node.ymin, node.ymin], color='black')
-#
-#     for child in node.children:
-#         plot_quadtree(child, ax)
-#
-#     for point in node.points:
-#         ax.plot(point.x, point.y, 'ro')
-#
-#     ax.set_xlim(0, 100)
-#     ax.set_ylim(0, 100)
-#     ax.set_aspect('equal', adjustable='box')
-#
-#
+# 	if ax is None:
+# 		_, ax = plt.subplots()
+# #
+# 	ax.plot([node.xmin, node.xmin, node.xmax, node.xmax, node.xmin],
+# 			[node.ymin, node.ymax, node.ymax, node.ymin, node.ymin], color='black')
+# #
+# 	for child in node.children:
+# 		plot_quadtree(child, ax)
+# #
+# 	for point in node.points:
+# 		ax.plot(point.x, point.y, 'ro')
+# #
+# 	ax.set_xlim(0, 100)
+# 	ax.set_ylim(0, 100)
+# 	ax.set_aspect('equal', adjustable='box')
+# #
+# #
 # quadtree = QuadTreeNode(xmin=0, ymin=0, xmax=100, ymax=100)
-# points_list = [(10, 10, 3), (20, 20, 4), (5, 5, 5), (90, 90, 6), (15, 15, 7), (30, 30, 8)]
-#
+# points_list = [(10, 10, 3), (20, 20, 4), (5, 5, 5), (90, 90, 6), (15, 15, 7), (30, 30, 8), (1, 1, 1), (1, 40, 1), (20, 40, 1), (1, 49, 1)]
+# #
 # for point_coords in points_list:
 # 	point = Point(*point_coords)
 # 	quadtree.add_point(point)
-#
+# #
 # plot_quadtree(quadtree)
 # plt.show()
+#
+
 
 

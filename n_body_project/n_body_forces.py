@@ -1,3 +1,5 @@
+import math
+
 from numba import jit, prange
 import numpy as np
 import matplotlib.pyplot as plt
@@ -196,7 +198,8 @@ def softening_values(mean_dist, exp, step_size):
 	@rtype: list
 	"""
 
-	n = round(mean_dist)
+	exp_of_mean_dist = math.floor(math.log10(mean_dist))
+	n = 10 ** exp_of_mean_dist
 	exp = list(range(-exp, exp + 1, step_size))
 	softs = []
 	for i in exp:
@@ -245,7 +248,7 @@ def softening_plot(soft_values, particle_number, mean_int, mass, x_cord, y_cord,
 		r_abs_sort = F_abs_sort.r_abs
 		F_abs_sort = F_abs_sort.F_abs
 
-		if i / round(mean_int) == 1:
+		if i / (10 ** math.floor(math.log10(mean_int))) == 1:
 			ax_soft.scatter(par[::100], F_abs_sort[::100], color="red", edgecolors='black', label=f'Softening={i:.0e}')
 			ax_rad.scatter(r_abs_sort[::100], F_abs_sort[::100], color="red", edgecolors='black', label=f'Softening={i:.0e}')
 		else:

@@ -20,7 +20,7 @@ particle_number, mass, x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, softening
 
 # all data in Planck units
 # ------------------------------------------------------------------------------
-
+"""
 # Task 1: Step 1
 
 # get the density plot
@@ -30,7 +30,7 @@ particle_density_plot.savefig("n_body_project/plots/density_profile.png")
 plt.close(particle_density_plot)
 
 # test time integration
-leap_frog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, 1, 1)
+#leap_frog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, 1, 1)
 
 # ------------------------------------------------------------------------------
 # Task 1: Step 2
@@ -101,20 +101,22 @@ def plot_quadtree(node, ax=None):
 
 quadtree = QuadTreeNode(xmin=0, ymin=0, xmax=np.max(x_cord), ymax=np.max(y_cord))
 point_coordinates = [(x_cord[i], y_cord[i], mass[i]) for i in range(len(x_cord))]
-point_coordinates = point_coordinates[::100]
+#point_coordinates = point_coordinates[::10]
+print(len(point_coordinates))
 print(point_coordinates)
 
+count = 0
 for point in range(len(point_coordinates)):
+	count += 1
 	print(f"Calculating particle {point}")
 	point = Point(*point_coordinates[point])
 	quadtree.add_point(point)
-for point in range(len(point_coordinates)):
-	point = Point(*point_coordinates[point])
-	accel = quadtree.force_calculation(point)
+
+print(count)
 
 plot_quadtree(quadtree)
 plt.show()
-"""
+
 
 
 
