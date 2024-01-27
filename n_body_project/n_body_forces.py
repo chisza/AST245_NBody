@@ -111,8 +111,9 @@ def half_mass_radius(x_coordinate, y_coordinate, z_coordinate, mass):
 
 	# get the radius corresponding with half the total_mass
 	half_mass_r = radii[ind]
+	half_mass = acc_mass
 
-	return half_mass_r
+	return half_mass_r, half_mass
 
 
 def particles_in_hmr(half_mass_radius, x_coordinate, y_coordinate, z_coordinate):

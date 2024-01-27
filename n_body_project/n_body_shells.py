@@ -70,11 +70,17 @@ def split_data_into_shells(x_coordinates, y_coordinates, z_coordinates, n_shells
 	start_exp = math.floor(math.log10(np.min(radii)))
 	end_exp = math.ceil(math.log10(np.max(radii)))
 
-	# get logarithmically distributed bins
-	bins = np.logspace(start_exp, end_exp, bin_number, base=10.0)
+	# get logarithmically distributed shells
+	# add + 1 to generate the number of shells specified
+	# this needs n + 1 boundaries
+	shell_boundaries = np.logspace(start_exp, end_exp, n_shells + 1, base=10.0)
 
-	# Calculate the shell boundaries
-	shell_boundaries, shell_thickness = np.linspace(0, maximal_radius, n_shells + 1, retstep=True) # TODO make log bins
+	# get an array with the shell thicknesses of every shell
+	# the shell thicknesses also have a lograrithmic spacing
+	# with this procedure, every two boundaries are subtracted from each other
+	# get N (50) thicknesses for 51 boundaries generated for 50 shells
+	shell_thickness = shell_boundaries[1:] - shell_boundaries[:-1]
+
 
 	in_shells = []
 
@@ -124,6 +130,8 @@ def rho_of_shell(shell_indices, shell_boundaries, part_ind, masses):
 	mass_of_shells = []
 	count = 0
 
+	# check if a particle is in a shell
+	# if yes, then add the mass of the particle to the total mass of that shell
 	for shell in range(np.shape(shell_indices)[0]):
 		mass_shell = 0
 		shell = np.array(shell_indices[shell], dtype=np.int64)
@@ -138,6 +146,9 @@ def rho_of_shell(shell_indices, shell_boundaries, part_ind, masses):
 
 	shell_volumes = []
 
+	# calculate the shell volumes
+	# these should be logarithmic, as the boundaries have been calculated logarithmically
+	# QUESTION as the boundaries are logarithmic, the volumes should be logarithmic as well, right?
 	for i in range(len(shell_boundaries) - 1):
 		lower_boundary = shell_boundaries[i]
 		upper_boundary = shell_boundaries[i + 1]
@@ -163,6 +174,9 @@ def shell_masses(rho_of_shells, shell_boundaries, shell_thickness):
 	shell_boundaries = shell_boundaries[:]
 
 	# calculate the density for each shell
+	# QUESTION even when the innermost shell boundary is not 0 anymore because of logspace, can I still sum up from the first and not 0th element?
+	# I would say yes, the innermost boundary is the starting point, needed to create shells but not a radius
+	# I need to sum up towards to
 	shell_density_masses = shell_thickness * shell_boundaries[1:] ** 2 * rho_of_shells
 
 	# QUESTION this includes the mass density of the shell the particle is in
@@ -221,12 +235,12 @@ def forces_when_looking_at_shells(shell_masses, shell_boundaries, x_coordinates,
 
 	count = 0
 	for particle in range(len(x_coordinates)):
-		print(particle)
+		#print(particle)
 		# this shell index, it corresponds to the shell the particle is in
 		# to calculate the force a particle experiences -> shell_ind - 1
 		# to get the inner shell
 		shell_ind = np.max(np.where(radii[particle] <= shell_boundaries))
-		print(shell_ind)
+		#print(shell_ind)
 		#if shell_ind >= 0:
 			#count += 1
 	#print(count)
@@ -240,10 +254,10 @@ def forces_when_looking_at_shells(shell_masses, shell_boundaries, x_coordinates,
 			absolute_forces.append(0)
 
 	absolute_forces = np.array(absolute_forces)
-	print("here")
-	print(len(absolute_forces))
-	print(absolute_forces)
-	print(radii)
+	# print("here")
+	# print(len(absolute_forces))
+	# print(absolute_forces)
+	# print(radii)
 
 	return absolute_forces, radii
 

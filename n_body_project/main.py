@@ -6,6 +6,7 @@
 from particle_density import *
 from n_body_forces import *
 from n_body_shells import *
+from relaxation_time import *
 from exp_tree_code import *
 from time_integration import *
 
@@ -20,7 +21,7 @@ particle_number, mass, x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, softening
 
 # all data in Planck units
 # ------------------------------------------------------------------------------
-
+"""
 # Task 1: Step 1
 
 # get the density plot
@@ -36,7 +37,8 @@ plt.close(particle_density_plot)
 # Task 1: Step 2
 
 # calculate half-total_mass radius
-hmr = half_mass_radius(x_cord, y_cord, z_cord, mass)
+hmr, half_mass = half_mass_radius(x_cord, y_cord, z_cord, mass)
+print(type(hmr), print(type(half_mass)))
 
 # get all the particles within the half total_mass radius
 pos = particles_in_hmr(hmr, x_cord, y_cord, z_cord)
@@ -45,18 +47,19 @@ pos = particles_in_hmr(hmr, x_cord, y_cord, z_cord)
 mean_int = mean_inter_particle_separation(pos)
 
 # get values of different order of magnitude for softening
-s = softening_values(mean_int, 6, 3)
+s = softening_values(mean_int, 3, 3)
 
 # calculate the forces brute force and plot their dependence on the softening
 soft_plot, rad_plot = softening_plot(s, particle_number, mean_int, mass, x_cord, y_cord, z_cord, softening)
 soft_plot.savefig("n_body_project/plots/softening.png")
-#rad_plot.savefig("n_body_project/plots/rad.png")
+#fig, ax = rad_plot
+#fig.savefig("n_body_project/plots/rad.png")
 # plt.show()
 plt.close(soft_plot)
-#plt.close(rad_plot)
+#plt.close(fig)
 
 # calculate the forces depending on the shell
-shell_ind, shell_bound, shell_thickness = split_data_into_shells(x_cord, y_cord, z_cord, 50)
+shell_ind, shell_bound, shell_thickness = split_data_into_shells(x_cord, y_cord, z_cord, 1000)
 rhoos = rho_of_shell(shell_ind, shell_bound, mass, particle_number)
 masses_of_shells = shell_masses(rhoos, shell_bound, shell_thickness)
 
@@ -76,7 +79,13 @@ ax.legend()
 fig.savefig("n_body_project/plots/rad.png")
 plt.close(fig)
 
+# QUESTION we take the half mass radius for this, should we also take just the number of
+# particles included in the half mass radius or all of them
+rel_time, cross_time = relaxation_time(len(particle_number), half_mass, hmr)
+print(rel_time, cross_time)
+print(type(rel_time), type(cross_time))
 
+"""
 #-------------------------------------------------------------------------------
 # Task 2: Tree code
 
