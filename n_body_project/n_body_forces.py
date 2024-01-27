@@ -84,8 +84,8 @@ def half_mass_radius(x_coordinate, y_coordinate, z_coordinate, mass):
 	@type z_coordinate: np.ndarray
 	@param mass: total_mass of particles as an array
 	@type mass: np.ndarray
-	@return: Half total_mass radius
-	@rtype: float
+	@return: Half mass radius and half mass
+	@rtype: tuple[float, float]
 
 	"""
 
@@ -246,18 +246,20 @@ def softening_plot(soft_values, particle_number, mean_int, mass, x_cord, y_cord,
 	for i in soft_values:
 		softening[:] = i
 		F_abs, r_abs, accel = direct_force_calculation(mass, x_cord, y_cord, z_cord, softening)
-		F_abs_sort = np.rec.fromarrays([F_abs, r_abs], dtype=np.dtype([('F_abs', np.float32), ('r_abs', np.float32)])) # find the permutation to sort r_abs fro lowest to highest
+		F_abs_sort = np.rec.fromarrays([F_abs, r_abs], dtype=np.dtype([('F_abs', np.float64), ('r_abs', np.float64)])) # find the permutation to sort r_abs fro lowest to highest
 		F_abs_sort.sort()
 
+		# extract the two sorted arrays to use them for plotting
 		r_abs_sort = F_abs_sort.r_abs
 		F_abs_sort = F_abs_sort.F_abs
 
 		if i / (10 ** math.floor(math.log10(mean_int))) == 1:
-			ax_soft.scatter(par[::100], F_abs_sort[::100], color="red", edgecolors='black', label=f'Softening={i:.0e}')
-			ax_rad.scatter(r_abs_sort[::100], F_abs_sort[::100], color="red", edgecolors='black', label=f'Softening={i:.0e}')
+			# give the softening of order mean inter particle distance red as a color
+			ax_soft.scatter(par, F_abs_sort, color="red", edgecolors='black', label=f'Softening={i:.0e}')
+			ax_rad.scatter(r_abs_sort, F_abs_sort, color="red", edgecolors='black', label=f'Softening={i:.0e}')
 		else:
-			ax_soft.scatter(par[::100], F_abs_sort[::100], label=f'Softening={i:.0e}')
-			ax_rad.scatter(r_abs_sort[::100], F_abs_sort[::100], label=f'Softening={i:.0e}')
+			ax_soft.scatter(par, F_abs_sort, label=f'Softening={i:.0e}')
+			ax_rad.scatter(r_abs_sort, F_abs_sort, label=f'Softening={i:.0e}')
 
 	ax_soft.legend()
 	#plt.xscale("log")

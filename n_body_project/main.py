@@ -59,14 +59,14 @@ plt.close(soft_plot)
 #plt.close(fig)
 
 # calculate the forces depending on the shell
-shell_ind, shell_bound, shell_thickness = split_data_into_shells(x_cord, y_cord, z_cord, 1000)
-rhoos = rho_of_shell(shell_ind, shell_bound, mass, particle_number)
+shell_ind, shell_bound, shell_thickness = split_data_into_shells(x_cord, y_cord, z_cord, 50)
+rhoos = rho_of_shell(shell_ind, shell_bound, mass)
 masses_of_shells = shell_masses(rhoos, shell_bound, shell_thickness)
 
-forces_on_particles, radii = forces_when_looking_at_shells(masses_of_shells, shell_bound, x_cord, y_cord, z_cord)
+forces_on_particles, radii = forces_when_looking_at_shells(masses_of_shells, shell_bound, x_cord, y_cord, z_cord, mass)
 
 # sort the forces and the radii
-F_abs_sort = np.rec.fromarrays([forces_on_particles, radii], dtype=np.dtype([('F_abs', np.float32), ('r_abs', np.float32)]))  # find the permutation to sort r_abs fro lowest to highest
+F_abs_sort = np.rec.fromarrays([forces_on_particles, radii], dtype=np.dtype([('F_abs', np.float64), ('r_abs', np.float64)]))  # find the permutation to sort r_abs fro lowest to highest
 F_abs_sort.sort()
 
 r_abs_sort = F_abs_sort.r_abs
@@ -74,7 +74,7 @@ F_abs_sort = F_abs_sort.F_abs
 
 fig, ax = rad_plot
 
-ax.scatter(radii[::100], forces_on_particles[::100], color="green", edgecolors='black', label=f'Shell forces')
+ax.scatter(radii, forces_on_particles, color="green", edgecolors='black', label=f'Shell forces')
 ax.legend()
 fig.savefig("n_body_project/plots/rad.png")
 plt.close(fig)
