@@ -20,7 +20,7 @@ particle_number, mass, x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, softening
 
 # all data in Planck units
 # ------------------------------------------------------------------------------
-"""
+
 # Task 1: Step 1
 
 # get the density plot
@@ -31,7 +31,7 @@ plt.close(particle_density_plot)
 
 # test time integration
 #leap_frog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, 1, 1)
-
+"""
 # ------------------------------------------------------------------------------
 # Task 1: Step 2
 
@@ -45,7 +45,7 @@ pos = particles_in_hmr(hmr, x_cord, y_cord, z_cord)
 mean_int = mean_inter_particle_separation(pos)
 
 # get values of different order of magnitude for softening
-s = softening_values(mean_int, 1, 1)
+s = softening_values(mean_int, 6, 3)
 
 # calculate the forces brute force and plot their dependence on the softening
 soft_plot, rad_plot = softening_plot(s, particle_number, mean_int, mass, x_cord, y_cord, z_cord, softening)
@@ -76,7 +76,6 @@ ax.legend()
 fig.savefig("n_body_project/plots/rad.png")
 plt.close(fig)
 
-"""
 
 #-------------------------------------------------------------------------------
 # Task 2: Tree code
@@ -94,14 +93,14 @@ def plot_quadtree(node, ax=None):
 	for point in node.points:
 		ax.plot(point.x, point.y, 'ro')
 
-	ax.set_xlim(0, np.max(x_cord))
-	ax.set_ylim(0, np.max(y_cord))
+	ax.set_xlim(np.min(x_cord), np.max(x_cord))
+	ax.set_ylim(np.min(y_cord), np.max(y_cord))
 	ax.set_aspect('equal', adjustable='box')
 
 
-quadtree = QuadTreeNode(xmin=0, ymin=0, xmax=np.max(x_cord), ymax=np.max(y_cord))
+quadtree = QuadTreeNode(xmin=np.min(x_cord), ymin=np.min(y_cord), xmax=np.max(x_cord), ymax=np.max(y_cord))
 point_coordinates = [(x_cord[i], y_cord[i], mass[i]) for i in range(len(x_cord))]
-#point_coordinates = point_coordinates[::10]
+point_coordinates = point_coordinates[::100]
 print(len(point_coordinates))
 print(point_coordinates)
 
@@ -113,9 +112,11 @@ for point in range(len(point_coordinates)):
 	quadtree.add_point(point)
 
 print(count)
+print(quadtree)
 
-plot_quadtree(quadtree)
-plt.show()
+#plot_quadtree(quadtree)
+#plt.show()
+"""
 
 
 

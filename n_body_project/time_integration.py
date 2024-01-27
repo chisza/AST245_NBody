@@ -59,6 +59,11 @@ def repetitive_leapfog(x_cord, y_cord, z_cord, vel_x, vel_y, vel_z, masses, soft
 		vel_z = new_velocity[2]
 
 		# TODO return something for plotting
+	return x_cord, y_cord, z_cord
+
+def animation_function():
+	"""Function to animate the plots to trace the path of a particle"""
+
 
 
 

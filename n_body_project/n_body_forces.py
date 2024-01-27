@@ -1,4 +1,6 @@
 import math
+import matplotlib.axes
+import matplotlib.figure
 
 from numba import jit, prange
 import numpy as np
@@ -19,8 +21,8 @@ def direct_force_calculation(mass, x_cord, y_cord, z_cord, softening):
 	@type z_cord: np.ndarray
 	@param softening: softening parameter as array
 	@type softening: np.ndarray
-	@return: tuple of Fx, Fy, Fz, and absolute force and absolut radii
-	@rtype: tuple
+	@return: tuple of absolute forces, absolute radii, and tuple of accelerations
+	@rtype: tuple[np.ndarray, np.ndarray, tuple[np.ndarray, np.ndarray, np.ndarray]]
 
 	"""
 
@@ -99,6 +101,7 @@ def half_mass_radius(x_coordinate, y_coordinate, z_coordinate, mass):
 	# calculate half of the total_mass
 	half_mass = tot_mass / 2.
 	acc_mass = 0
+	# all particles have the same mass
 	for i in range(len(x_coordinate)):
 		if acc_mass <= half_mass:
 			acc_mass += mass[i]
@@ -227,8 +230,8 @@ def softening_plot(soft_values, particle_number, mean_int, mass, x_cord, y_cord,
 	@type z_cord: np.ndarray
 	@param softening: original softening values as array
 	@type softening: np.ndarray
-	@return: Figure
-	@rtype: plt.Figure
+	@return: tuple with the figure of the softening plot, and a tuple with the plot and axis for the radius plot
+	@rtype: tuple[matplotlib.figure.Figure, tuple[matplotlib.figure.Figure, plt.Axes]]
 	"""
 
 	print("Start softening plot")

@@ -1,10 +1,23 @@
 # do not use numba here, it does NOT work
 import numpy as np
+import math
 import sys
 import matplotlib.pyplot as plt
 
 def center_of_mass(x_coordinates, y_coordinates, z_coordinates, masses):
-	"""Calculate the center of total_mass coordinates of a particle distribution"""
+	"""Calculate the center of total_mass coordinates of a particle distribution
+
+	@param x_coordinates: x coordinates as array
+	@type x_coordinates: np.ndarray
+	@param y_coordinates: y coordinates as array
+	@type y_coordinates: np.ndarray
+	@param z_coordinates: z coordinates as array
+	@type z_coordinates: np.ndarray
+	@param masses: masses as array
+	@type masses: np.ndarray
+	@return: center of mass as tuple
+	@rtype: tuple
+	"""
 
 	# calculate the total total_mass of the system
 	tot_mass = np.sum(masses)
@@ -17,7 +30,17 @@ def center_of_mass(x_coordinates, y_coordinates, z_coordinates, masses):
 
 
 def max_radius(x_coordinates, y_coordinates, z_coordinates):
-	"""Find the overall radius of the system"""
+	"""Find the overall radius of the system
+
+	@param x_coordinates: x coordinates as array
+	@type x_coordinates: np.ndarray
+	@param y_coordinates: y coordinates as array
+	@type y_coordinates: np.ndarray
+	@param z_coordinates: z coordinates as array
+	@type z_coordinates: np.ndarray
+	@return: tuple of the absolute radii of the particles and the overall absolute radius of the system
+	@rtype: tuple
+	"""
 
 	radii = np.sqrt(x_coordinates ** 2 + y_coordinates ** 2 + z_coordinates ** 2)
 
@@ -29,14 +52,29 @@ def max_radius(x_coordinates, y_coordinates, z_coordinates):
 def split_data_into_shells(x_coordinates, y_coordinates, z_coordinates, n_shells):
 	"""Split the data into different shells
 
+	@param x_coordinates: x coordinates as array
+	@type x_coordinates: np.ndarray
+	@param y_coordinates: y coordinates as array
+	@type y_coordinates: np.ndarray
+	@param z_coordinates: z coordinates as array
+	@type z_coordinates: np.ndarray
 	@param n_shells: the number of shells to be generated
+	@type n_shells: int
+	@return: tuple of the index of particles in shell, the shell boundaries, the shell thickness
+	@rtype: tuple
 	"""
 
 	# Calculate the maximal radius
 	radii, maximal_radius = max_radius(x_coordinates, y_coordinates, z_coordinates)
 
+	start_exp = math.floor(math.log10(np.min(radii)))
+	end_exp = math.ceil(math.log10(np.max(radii)))
+
+	# get logarithmically distributed bins
+	bins = np.logspace(start_exp, end_exp, bin_number, base=10.0)
+
 	# Calculate the shell boundaries
-	shell_boundaries, shell_thickness = np.linspace(0, maximal_radius, n_shells + 1, retstep=True)
+	shell_boundaries, shell_thickness = np.linspace(0, maximal_radius, n_shells + 1, retstep=True) # TODO make log bins
 
 	in_shells = []
 
@@ -76,7 +114,6 @@ def rho_of_shell(shell_indices, shell_boundaries, part_ind, masses):
 	"""Find the density of a shell, calculate the total_mass of each shell
 	and the volume of each shell, and the density is then rho = total_mass / V
 	per shell
-
 	"""
 
 	# shell_indices is an array, that contains arrays(= shells)

@@ -1,18 +1,26 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 # start out with a quadtree to get the idea
 # TODO when it is running as it should, expand it to an OctTree
-
+# TODO if possible change it to jitclass (and leave it, when it requires a rewrite of the whole code)
 
 class Point:
 	def __init__(self, x_coordinate, y_coordinate, mass):
 		self.x = x_coordinate
 		self.y = y_coordinate
 		self.mass = mass
+		#self.id = id
 
 		self.x_accel = 0
 		self.y_accel = 0
+
+	def __str__(self):
+		return f"Point {self.id}: {self.x}, {self.y}"
+
+	def __repr__(self):
+		return f"Point ({self.id} {self.x}, {self.y})"
 
 
 class QuadTreeNode:
@@ -31,6 +39,14 @@ class QuadTreeNode:
 		self.max_items = 1
 		self.theta = 0.5
 
+	def __str__(self, level=0):
+		ret = " " * level + str(self.x_com) + '\n'
+		for child in self.children:
+			ret += child.__str__(level + 1)
+
+		return ret
+
+
 	def add_point(self, point):
 		# check if the current node is full
 		# if yes, then divide the node
@@ -47,10 +63,9 @@ class QuadTreeNode:
 			print("we have children")
 		else:
 			self.points.append(point)
-			# update the center of total_mass and the total total_mass of the node
-			self.update_center_of_mass(point)
+			self.calculate_center_of_mass(point)
 
-	def update_center_of_mass(self, point):
+	def calculate_center_of_mass(self, point):
 		# just add the new point coordinates and mass to the existing center of mass coordinates and mass
 		total_mass = self.total_mass + point.mass
 		x_com = (self.x_com * self.total_mass + point.x * point.mass) / total_mass
@@ -81,10 +96,10 @@ class QuadTreeNode:
 		# after splitting the node, each child needs the center of total_mass coordinates
 		# and the total total_mass calculated
 		for child in self.children:
-
 			pass
+			#child.calculate_center_of_mass()
 
-	def calculate_center_of_mass(self, point):
+	def update_center_of_mass(self):
 		# check if the node has children
 		if self.children:
 			total_mass = 0
@@ -92,7 +107,7 @@ class QuadTreeNode:
 			y_com = 0
 
 			for child in self.children:
-				child.calculate_center_of_mass()
+				child.update_center_of_mass()
 				total_mass += child.total_mass
 				x_com += child.x_com * child.total_mass
 				y_com += child.y_com * child.total_mass
@@ -102,13 +117,6 @@ class QuadTreeNode:
 				self.x_com = x_com / total_mass
 				self.y_com = y_com / total_mass
 
-		# QUESTION else the center of mass is the center of mass of the
-		# particle in the node and its mass is its mass
-		# something like this, but this is not correct, or is it?
-		else:
-			self.total_mass = point.mass
-			self.x_com = point.x
-			self.y_com = point.y
 
 
 	def add_point_to_child(self, point):
@@ -117,12 +125,15 @@ class QuadTreeNode:
 		for child in self.children:
 			if child.xmin <= point.x <= child.xmax and child.ymin <= point.y <= child.ymax:
 				child.add_point(point)
+				# QUESTION calculate center of mass here for the node
 				# after the point has been added to a child,
 				# further search is not possible
 				break
 
 	# determine if a node is far enough from the root particle that it can be approximated
 	# with the center of mass for the force calculation
+	# do this outside, go through the tree and find each point, access its node
+	# and go from there
 	def force_calculation(self, point):
 		vector_radius = np.array((point.x - self.x_com, point.y - self.y_com))
 		print(vector_radius)
