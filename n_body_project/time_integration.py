@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import pyplot as plt
 from numba import jit
 
 from n_body_forces import direct_force_calculation
@@ -47,6 +48,8 @@ def repetitive_leapfog(x_cord, y_cord, z_cord, vel_x, vel_y, vel_z, masses, soft
 
 	"""
 
+	stuff_for_plotting = []
+
 	steps = time / h
 
 	for i in range(steps):
@@ -63,11 +66,12 @@ def repetitive_leapfog(x_cord, y_cord, z_cord, vel_x, vel_y, vel_z, masses, soft
 		vel_y = new_velocity[1]
 		vel_z = new_velocity[2]
 
+		# get a list of all the values for plotting
+		stuff_for_plotting.append((x_cord, y_cord, z_cord))
+
 		# TODO return something for plotting
 	return x_cord, y_cord, z_cord
 
-def animation_function():
-	"""Function to animate the plots to trace the path of a particle"""
 
 
 

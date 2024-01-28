@@ -1,10 +1,10 @@
 import math
-import matplotlib.axes
 import matplotlib.figure
 
-from numba import jit, prange
+from numba import jit, prange, objmode
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 
 @jit(nopython=True, parallel=True)
@@ -40,6 +40,9 @@ def direct_force_calculation(mass, x_cord, y_cord, z_cord, softening):
 	print("Begin brute force calculation")
 	print(softening)
 
+	with objmode(start='f8'):
+		start = time.perf_counter()
+
 	for i in prange(N):
 		# per = i / N * 100
 		# print(per)
@@ -61,13 +64,18 @@ def direct_force_calculation(mass, x_cord, y_cord, z_cord, softening):
 	Fz = az_accel * mass
 	abs_F = np.sqrt(Fx**2 + Fy**2 + Fz**2)
 
+	with objmode(stop='f8'):
+		stop = time.perf_counter()
+	with objmode(elapsed='f8'):
+		elapsed = stop - start
+
 	abs_r = np.sqrt(x_cord ** 2 + y_cord ** 2 + z_cord ** 2)
 
 	accelerations = (ax_accel, ay_accel, az_accel)
 
 	print(len(abs_F))
-
-	print("Finished brute force calculation")
+	with objmode():
+		print(f"Finished brute force calculation, time elapsed: {elapsed} seconds")
 
 	return abs_F, abs_r, accelerations
 

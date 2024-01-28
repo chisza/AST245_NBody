@@ -21,7 +21,7 @@ particle_number, mass, x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, softening
 
 # all data in Planck units
 # ------------------------------------------------------------------------------
-"""
+
 # Task 1: Step 1
 
 # get the density plot
@@ -32,7 +32,7 @@ plt.close(particle_density_plot)
 
 # test time integration
 #leap_frog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, 1, 1)
-"""
+
 # ------------------------------------------------------------------------------
 # Task 1: Step 2
 
@@ -93,6 +93,36 @@ tree_plots = repetitive_tree_code(x_cord, y_cord, z_cord, mass, particle_number,
 tree_plots.savefig("n_body_project/plots/tree.png")
 
 print("end")
+
+
+
+# fig = plt.figure()
+# ax = fig.add_subplot(projection='3d')
+#
+# #x, y, z = np.zeros_like(particle_number), np.zeros_like(particle_number), np.zeros_like(particle_number)
+#
+# ax.scatter(x_cord, y_cord, z_cord)
+#
+# def update(i):
+#
+# 	global x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, softening
+#
+# 	softening[:] = softening
+#
+# 	for i in range(5):
+# 		new_position, new_velocity = leap_frog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, softening, 1)
+#
+# 		x_cord, y_cord, z_cord = new_position[0], new_position[1], new_position[2]
+# 		vx_vel, vy_vel, vz_vel = new_velocity[0], new_velocity[1], new_velocity[2]
+#
+# 	ax.scatter(x_cord, y_cord, z_cord)
+#
+# from matplotlib.animation import FuncAnimation
+#
+# ani = FuncAnimation(fig, update, 1, interval=1, repeat=False)
+# ani.save("leap_frog.mp4")
+#
+# plt.show()
 
 
 

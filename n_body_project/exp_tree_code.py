@@ -1,3 +1,5 @@
+import time
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -233,6 +235,8 @@ def tree_code_forces(x_coordinates, y_coordinates, z_coordinates, masses, part_n
 
 	print("Start tree generation")
 
+	start = time.perf_counter()
+
 	# QUESTION should other min and max values be used -> this won't give a square otherwise -> influences the subdivision
 	octtree = OctTreeNode(xmin=np.min(radii), ymin=np.min(radii), zmin=np.min(radii),
 						  xmax=np.max(radii), ymax=np.max(radii), zmax=np.max(radii), theta=theta)
@@ -250,7 +254,7 @@ def tree_code_forces(x_coordinates, y_coordinates, z_coordinates, masses, part_n
 
 	# calculate the forces for each particle
 	for point_cords in range(len(point_coordinates)):
-		print(point_cords)
+		#print(point_cords)
 		point = Point(*point_coordinates[point_cords])
 		acc = octtree.calculate_acceleration(point)
 		ax_accel[point_cords] = point.x_accel
@@ -262,9 +266,15 @@ def tree_code_forces(x_coordinates, y_coordinates, z_coordinates, masses, part_n
 	Fz = az_accel * masses
 	abs_F = np.sqrt(Fx ** 2 + Fy ** 2 + Fz ** 2)
 
+	stop = time.perf_counter()
+
+	elapsed = stop - start
+
 	abs_r = np.sqrt(x_coordinates ** 2 + y_coordinates ** 2 + z_coordinates ** 2)
 
 	accelerations = (ax_accel, ay_accel, az_accel)
+
+	print(f"Calculated forces with tree code, time: {elapsed}")
 
 	return abs_F, abs_r, accelerations
 
