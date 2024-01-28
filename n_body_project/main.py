@@ -35,7 +35,7 @@ plt.close(particle_density_plot)
 """
 # ------------------------------------------------------------------------------
 # Task 1: Step 2
-"""
+
 # calculate half-total_mass radius
 hmr, half_mass = half_mass_radius(x_cord, y_cord, z_cord, mass)
 
@@ -83,25 +83,16 @@ plt.close(fig)
 rel_time, cross_time = relaxation_time(len(particle_number), half_mass, hmr)
 print(f"relaxation time: {rel_time}, crossing time: {cross_time}")
 
-"""
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # Task 2: Tree code
 
-octtree = OctTreeNode(xmin=np.min(x_cord), ymin=np.min(y_cord), zmin=np.min(z_cord), xmax=np.max(x_cord), ymax=np.max(y_cord), zmax=np.max(z_cord))
-point_coordinates = [(x_cord[i], y_cord[i], z_cord[i], mass[i], particle_number[i]) for i in range(len(x_cord))]
-point_coordinates = point_coordinates[::100]
-print(len(point_coordinates))
-print(point_coordinates)
+angles = opening_angles(0.4, 0.8, 2)
 
-count = 0
-for point in range(len(point_coordinates)):
-	count += 1
-	print(f"Calculating particle {point}")
-	point = Point(*point_coordinates[point])
-	octtree.add_point(point)
+tree_plots = repetitive_tree_code(x_cord, y_cord, z_cord, mass, particle_number, angles)
 
-print(count)
-print(octtree.total_mass)
+tree_plots.savefig("n_body_project/plots/tree.png")
+
+print("end")
 
 
 
