@@ -40,7 +40,12 @@ def leap_frog(x_cord, y_cord, z_cord, vel_x, vel_y, vel_z, masses, softening, h)
 	return new_position, new_velocity
 
 def repetitive_leapfog(x_cord, y_cord, z_cord, vel_x, vel_y, vel_z, masses, softening, time, h):
-	"""Repeat the leap frog algorithm several times"""
+	"""Repeat the leap frog algorithm several times
+
+	@param time: the total time over which the integration should run
+	@param h: Stepsize choosen for the integration
+
+	"""
 
 	steps = time / h
 

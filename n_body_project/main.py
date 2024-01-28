@@ -35,10 +35,9 @@ plt.close(particle_density_plot)
 """
 # ------------------------------------------------------------------------------
 # Task 1: Step 2
-
+"""
 # calculate half-total_mass radius
 hmr, half_mass = half_mass_radius(x_cord, y_cord, z_cord, mass)
-print(type(hmr), print(type(half_mass)))
 
 # get all the particles within the half total_mass radius
 pos = particles_in_hmr(hmr, x_cord, y_cord, z_cord)
@@ -59,7 +58,7 @@ plt.close(soft_plot)
 #plt.close(fig)
 
 # calculate the forces depending on the shell
-shell_ind, shell_bound, shell_thickness = split_data_into_shells(x_cord, y_cord, z_cord, 50)
+shell_ind, shell_bound, shell_thickness = split_data_into_shells(x_cord, y_cord, z_cord, 1000)
 rhoos = rho_of_shell(shell_ind, shell_bound, mass)
 masses_of_shells = shell_masses(rhoos, shell_bound, shell_thickness)
 
@@ -82,33 +81,14 @@ plt.close(fig)
 # QUESTION we take the half mass radius for this, should we also take just the number of
 # particles included in the half mass radius or all of them
 rel_time, cross_time = relaxation_time(len(particle_number), half_mass, hmr)
-print(rel_time, cross_time)
-print(type(rel_time), type(cross_time))
+print(f"relaxation time: {rel_time}, crossing time: {cross_time}")
 
 """
 #-------------------------------------------------------------------------------
 # Task 2: Tree code
 
-def plot_quadtree(node, ax=None):
-	if ax is None:
-		_, ax = plt.subplots()
-
-	ax.plot([node.xmin, node.xmin, node.xmax, node.xmax, node.xmin],
-			[node.ymin, node.ymax, node.ymax, node.ymin, node.ymin], color='black')
-
-	for child in node.children:
-		plot_quadtree(child, ax)
-
-	for point in node.points:
-		ax.plot(point.x, point.y, 'ro')
-
-	ax.set_xlim(np.min(x_cord), np.max(x_cord))
-	ax.set_ylim(np.min(y_cord), np.max(y_cord))
-	ax.set_aspect('equal', adjustable='box')
-
-
-quadtree = QuadTreeNode(xmin=np.min(x_cord), ymin=np.min(y_cord), xmax=np.max(x_cord), ymax=np.max(y_cord))
-point_coordinates = [(x_cord[i], y_cord[i], mass[i]) for i in range(len(x_cord))]
+octtree = OctTreeNode(xmin=np.min(x_cord), ymin=np.min(y_cord), zmin=np.min(z_cord), xmax=np.max(x_cord), ymax=np.max(y_cord), zmax=np.max(z_cord))
+point_coordinates = [(x_cord[i], y_cord[i], z_cord[i], mass[i], particle_number[i]) for i in range(len(x_cord))]
 point_coordinates = point_coordinates[::100]
 print(len(point_coordinates))
 print(point_coordinates)
@@ -118,14 +98,10 @@ for point in range(len(point_coordinates)):
 	count += 1
 	print(f"Calculating particle {point}")
 	point = Point(*point_coordinates[point])
-	quadtree.add_point(point)
+	octtree.add_point(point)
 
 print(count)
-print(quadtree)
-
-#plot_quadtree(quadtree)
-#plt.show()
-"""
+print(octtree.total_mass)
 
 
 

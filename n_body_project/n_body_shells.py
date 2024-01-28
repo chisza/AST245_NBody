@@ -19,6 +19,7 @@ def center_of_mass(x_coordinates, y_coordinates, z_coordinates, masses):
 	@rtype: tuple
 	"""
 
+	print("Calculating Center of Mass")
 	# calculate the total total_mass of the system
 	tot_mass = np.sum(masses)
 
@@ -42,6 +43,7 @@ def max_radius(x_coordinates, y_coordinates, z_coordinates):
 	@rtype: tuple[np.ndarray, float]
 	"""
 
+	print("Calculating Max Radius")
 	radii = np.sqrt(x_coordinates ** 2 + y_coordinates ** 2 + z_coordinates ** 2)
 
 	maximal_radius = max(radii)
@@ -64,6 +66,7 @@ def split_data_into_shells(x_coordinates, y_coordinates, z_coordinates, n_shells
 	@rtype: tuple[np.ndarray, np.ndarray, np.ndarray]
 	"""
 
+	print("Splitting into shells")
 	# Calculate the maximal radius
 	radii, maximal_radius = max_radius(x_coordinates, y_coordinates, z_coordinates)
 
@@ -133,6 +136,8 @@ def rho_of_shell(shell_indices, shell_boundaries, masses):
 	@rtype: np.ndarray
 	"""
 
+	print("Calculating the rho of shells")
+
 	# shell_indices is an array, that contains arrays(= shells)
 	# with the indices of the particles in that shell
 
@@ -180,6 +185,8 @@ def rho_of_shell(shell_indices, shell_boundaries, masses):
 def shell_masses(rho_of_shells, shell_boundaries, shell_thickness):
 	"""Calculate the total_mass of each shell"""
 
+	print("Calculate shell masses")
+
 	masses_of_spheres = []
 
 	#shell_boundaries = shell_boundaries[:]
@@ -224,6 +231,8 @@ def shell_masses(rho_of_shells, shell_boundaries, shell_thickness):
 def forces_when_looking_at_shells(shell_masses, shell_boundaries, x_coordinates, y_coordinates, z_coordinates, masses):
 	"""Calculate the forces on a particle when subdividing the system into shells
 	and looking at the inner shell for the force"""
+
+	print("Calculate forces due to shells")
 
 	G = 1
 

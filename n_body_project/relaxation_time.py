@@ -7,6 +7,8 @@ def typical_particle_velocity(half_mass, half_mass_radius):
 	"""calculate the typcial particle velocity based on the
 	half mass radius"""
 
+	print("Calculating typical particle velocity")
+
 	G = 1
 
 	typical_velocity = np.sqrt((G * half_mass) / half_mass_radius)
@@ -19,6 +21,8 @@ def crossing_time(half_mass_radius, typical_velocity):
 	"""Calculate the crossing time of the particle
 	based on the half mass radius and the typical particle velocity"""
 
+	print("Calculating crossing time")
+
 	crossing_time = half_mass_radius / typical_velocity
 
 	return crossing_time
@@ -27,6 +31,8 @@ def crossing_time(half_mass_radius, typical_velocity):
 @jit(nopython=True)
 def relaxation_time(number_of_particles_half_mass, half_mass, half_mass_radius):
 	"""Calculate the relaxation time of the system based on the half mass radius"""
+
+	print("Calculating relaxation time")
 
 	typical_velocity = typical_particle_velocity(half_mass, half_mass_radius)
 
