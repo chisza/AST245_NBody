@@ -4,31 +4,6 @@ import math
 import sys
 import matplotlib.pyplot as plt
 
-def center_of_mass(x_coordinates, y_coordinates, z_coordinates, masses):
-	"""Calculate the center of total_mass coordinates of a particle distribution
-
-	@param x_coordinates: x coordinates as array
-	@type x_coordinates: np.ndarray
-	@param y_coordinates: y coordinates as array
-	@type y_coordinates: np.ndarray
-	@param z_coordinates: z coordinates as array
-	@type z_coordinates: np.ndarray
-	@param masses: masses as array
-	@type masses: np.ndarray
-	@return: center of mass as tuple
-	@rtype: tuple
-	"""
-
-	print("Calculating Center of Mass")
-	# calculate the total total_mass of the system
-	tot_mass = np.sum(masses)
-
-	r_x = np.sum(masses * x_coordinates) / tot_mass
-	r_y = np.sum(masses * y_coordinates) / tot_mass
-	r_z = np.sum(masses * z_coordinates) / tot_mass
-
-	return (r_x, r_y, r_z)
-
 
 def max_radius(x_coordinates, y_coordinates, z_coordinates):
 	"""Find the overall radius of the system
@@ -110,17 +85,6 @@ def split_data_into_shells(x_coordinates, y_coordinates, z_coordinates, n_shells
 	return in_shells_new, shell_boundaries, shell_thickness
 
 
-# TODO delete this at the end if it is still not needed
-def find_shell_index(r, shell_boundaries):
-	# This function finds the shell index for a given radius 'r'
-	# It associates a radius with a shell
-	# It returns the shell a particle is in
-	for i in range(len(shell_boundaries) - 1):
-		if shell_boundaries[i] <= r < shell_boundaries[i + 1]:
-			return i
-	return -1  # Return -1 if the radius is outside all shells
-
-
 def rho_of_shell(shell_indices, shell_boundaries, masses):
 	"""Find the density of a shell, calculate the total_mass of each shell
 	and the volume of each shell, and the density is then rho = total_mass / V
@@ -142,7 +106,6 @@ def rho_of_shell(shell_indices, shell_boundaries, masses):
 	# with the indices of the particles in that shell
 
 	# Find the indices of particles in each shell using boolean indexing
-
 	mass_of_shells = []
 	count = 0
 
@@ -164,7 +127,6 @@ def rho_of_shell(shell_indices, shell_boundaries, masses):
 
 	# calculate the shell volumes
 	# these should be logarithmic, as the boundaries have been calculated logarithmically
-	# QUESTION as the boundaries are logarithmic, the volumes should be logarithmic as well, right?
 	for i in range(len(shell_boundaries) - 1):
 		lower_boundary = shell_boundaries[i]
 		upper_boundary = shell_boundaries[i + 1]
@@ -189,20 +151,8 @@ def shell_masses(rho_of_shells, shell_boundaries, shell_thickness):
 
 	masses_of_spheres = []
 
-	#shell_boundaries = shell_boundaries[:]
-
-	# calculate the density for each shell
-	# QUESTION even when the innermost shell boundary is not 0 anymore because of logspace, can I still sum up from the first and not 0th element?
-	# I would say yes, the innermost boundary is the starting point, needed to create shells but not a radius
-	# I need to sum up towards to
 	# calculate the density for each shell
 	shell_density_masses = shell_thickness * shell_boundaries[1:] ** 2 * rho_of_shells
-
-	# QUESTION this includes the mass density of the shell the particle is in
-	# is that how it works?
-	# If the shell the particle is in is not included, what happens
-	# with the particles in the inner most shell?
-	# Or have just many more shells to be chosen?
 
 	# the number of boundaries for the shells is one bigger than
 	# the number of shells -> to loop over just the shells -> -1
@@ -214,12 +164,6 @@ def shell_masses(rho_of_shells, shell_boundaries, shell_thickness):
 		summe = 4 * np.pi * np.sum(shell_density_masses[:i])
 		masses_of_spheres.append(summe)
 
-	# calculate the masses enclosed in each sphere bounded by a shell_boundary
-	#for i in range(len(shell_boundaries)-1): # for 50 shells if 51 boundaries, comes from another function
-		#the_summed_part = np.sum(shell_thickness * shell_boundaries[1:i+1] ** 2 * rho_of_shells[:i])
-		#total_mass_of_system = 4 * np.pi * the_summed_part
-		#masses_of_spheres.append(total_mass_of_system)
-
 	#print(masses_of_spheres)
 	#print(len(masses_of_spheres))
 
@@ -228,7 +172,7 @@ def shell_masses(rho_of_shells, shell_boundaries, shell_thickness):
 	return masses_of_spheres
 
 
-def forces_when_looking_at_shells(shell_masses, shell_boundaries, x_coordinates, y_coordinates, z_coordinates, masses):
+def forces_when_looking_at_shells(shells_masses, shell_boundaries, x_coordinates, y_coordinates, z_coordinates, masses):
 	"""Calculate the forces on a particle when subdividing the system into shells
 	and looking at the inner shell for the force"""
 
@@ -240,7 +184,6 @@ def forces_when_looking_at_shells(shell_masses, shell_boundaries, x_coordinates,
 	radii, maximal_radius = max_radius(x_coordinates, y_coordinates, z_coordinates)
 
 	# calculate the unit vectors for all particles
-
 	# first combine the x, y, and z coordinates for each particle
 	particle_positions = np.stack((x_coordinates, y_coordinates, z_coordinates), axis=-1)
 
@@ -263,13 +206,10 @@ def forces_when_looking_at_shells(shell_masses, shell_boundaries, x_coordinates,
 		# to calculate the force a particle experiences -> shell_ind - 1
 		# to get the inner shell
 		shell_ind = np.max(np.where(radii[particle] <= shell_boundaries))
-		#print(shell_ind)
-		if shell_ind > -1:
-			count += 1
 
-		# the shell index of a shell without any particle is -1
+		# the shell index of a shell placement without any particle is -1
 		if shell_ind > -1:
-			force = - ((G * shell_masses[shell_ind] * masses[particle]) / radii[particle] ** 2) * unit_vector[particle]
+			force = - ((G * shells_masses[shell_ind] * masses[particle]) / radii[particle] ** 2) * unit_vector[particle]
 			#print(force)
 			abs_force = np.linalg.norm(force)
 			#print(abs_force)

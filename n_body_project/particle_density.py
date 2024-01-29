@@ -50,13 +50,12 @@ def hernquist_rho(ind_data, a):
 
 	radius, tot_mass = ind_data
 
-	# FIXME
 	rho = (tot_mass / (2 * np.pi)) * (a / radius) * (1 / ((radius + a) ** 3))
 
 	return rho
 
 
-def lograthmic_shell_edges(x_cord, y_cord, z_cord, bin_number):
+def logathmic_shell_edges(x_cord, y_cord, z_cord, bin_number):
 	"""Split the data into logarithmic shells / bins based on the radius"""
 
 	radius = np.sqrt(x_cord ** 2 + y_cord **2 + z_cord ** 2)
@@ -167,7 +166,7 @@ def plot_density_profile(x_cord, y_cord, z_cord, bin_number, masses):
 	and compare it with the expected density based on the Hernquist profile"""
 
 	# get the shell edges
-	bins, radius, widths = lograthmic_shell_edges(x_cord, y_cord, z_cord, bin_number)
+	bins, radius, widths = logathmic_shell_edges(x_cord, y_cord, z_cord, bin_number)
 
 	# split data into shells
 	number_of_particles_per_bin, bin_edges = splitting_data_into_bins(bins, radius)
@@ -181,7 +180,7 @@ def plot_density_profile(x_cord, y_cord, z_cord, bin_number, masses):
 	# calculate the density in each shell
 	shell_density_measured = density_in_bin(shell_masses, shell_volumes)
 
-	# FIXME calculate the error from the actual density distribution
+	# Calculate the error of the observed distribution
 	abs_error, rel_error = error_of_density(shell_density_measured, shell_volumes, len(x_cord), masses)
 
 	# calculate the density expected by the Hernquist profile

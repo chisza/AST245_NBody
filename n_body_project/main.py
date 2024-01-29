@@ -23,7 +23,7 @@ particle_number, mass, x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, softening
 # ------------------------------------------------------------------------------
 
 # Task 1: Step 1
-
+"""
 # get the density plot
 particle_density_plot = plot_density_profile(x_cord, y_cord, z_cord, 50, mass)
 particle_density_plot.savefig("n_body_project/plots/density_profile.png")
@@ -31,10 +31,10 @@ particle_density_plot.savefig("n_body_project/plots/density_profile.png")
 plt.close(particle_density_plot)
 
 # test time integration
-leap_frog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, 1, 1)
+#leap_frog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, 1, 1)
 
-repetitive_leapfog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, 1, 10, 2)
-
+#repetitive_leapfog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, 1, 10, 2)
+"""
 # ------------------------------------------------------------------------------
 # Task 1: Step 2
 
@@ -48,16 +48,14 @@ pos = particles_in_hmr(hmr, x_cord, y_cord, z_cord)
 mean_int = mean_inter_particle_separation(pos)
 
 # get values of different order of magnitude for softening
-s = softening_values(mean_int, 6, 2)
+s = softening_values(mean_int, 9, 3)
+print(s)
 """
 # calculate the forces brute force and plot their dependence on the softening
 soft_plot, rad_plot = softening_plot(s, particle_number, mean_int, mass, x_cord, y_cord, z_cord, softening)
 soft_plot.savefig("n_body_project/plots/softening.png")
-#fig, ax = rad_plot
-#fig.savefig("n_body_project/plots/rad.png")
-# plt.show()
+
 plt.close(soft_plot)
-#plt.close(fig)
 
 # calculate the forces depending on the shell
 shell_ind, shell_bound, shell_thickness = split_data_into_shells(x_cord, y_cord, z_cord, 1000)
@@ -80,54 +78,21 @@ ax.legend()
 fig.savefig("n_body_project/plots/rad.png")
 plt.close(fig)
 """
-# QUESTION we take the half mass radius for this, should we also take just the number of
-# particles included in the half mass radius or all of them
-rel_time, cross_time = relaxation_time(len(particle_number), half_mass, hmr)
+# Calculate the relaxation time and the crossing time
+rel_time, cross_time = relaxation_time(len(pos), half_mass, hmr)
 print(f"relaxation time: {rel_time}, crossing time: {cross_time}")
-relaxation_magnitude(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, s, 2, cross_time)
 
-"""
 # -------------------------------------------------------------------------------
 # Task 2: Tree code
 
-angles = opening_angles(0.4, 0.8, 2)
+#angles = opening_angles(0.8, 1, 2)
 
-tree_plots = repetitive_tree_code(x_cord, y_cord, z_cord, mass, particle_number, angles)
+#tree_plots = repetitive_tree_code(x_cord, y_cord, z_cord, mass, particle_number, angles)
 
-tree_plots.savefig("n_body_project/plots/tree.png")
+#tree_plots.savefig("n_body_project/plots/tree.png")
 
-print("end")
-
-
-
-# fig = plt.figure()
-# ax = fig.add_subplot(projection='3d')
-#
-# #x, y, z = np.zeros_like(particle_number), np.zeros_like(particle_number), np.zeros_like(particle_number)
-#
-# ax.scatter(x_cord, y_cord, z_cord)
-#
-# def update(i):
-#
-# 	global x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, softening
-#
-# 	softening[:] = softening
-#
-# 	for i in range(5):
-# 		new_position, new_velocity = leap_frog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, softening, 1)
-#
-# 		x_cord, y_cord, z_cord = new_position[0], new_position[1], new_position[2]
-# 		vx_vel, vy_vel, vz_vel = new_velocity[0], new_velocity[1], new_velocity[2]
-#
-# 	ax.scatter(x_cord, y_cord, z_cord)
-#
-# from matplotlib.animation import FuncAnimation
-#
-# ani = FuncAnimation(fig, update, 1, interval=1, repeat=False)
-# ani.save("leap_frog.mp4")
-#
-# plt.show()
-"""
+# Task 2: magnitude of relaxation
+relaxation_magnitude(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, s, cross_time, rel_time)
 
 
 

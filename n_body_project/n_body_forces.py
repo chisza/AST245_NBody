@@ -34,10 +34,12 @@ def direct_force_calculation(mass, x_cord, y_cord, z_cord, softening):
 	# initialize empty arrays for the forces
 	Fx, Fy, Fz, abs_F = np.zeros_like(x_cord), np.zeros_like(y_cord), np.zeros_like(z_cord), np.zeros_like(x_cord)
 
-	if isinstance(softening, int):
+	if isinstance(softening, int) or isinstance(softening, float):
 		softening = [softening] * len(x_cord)
+		softening = np.array(softening)
 
 	print("Begin brute force calculation")
+	print(softening)
 
 	with objmode(start='f8'):
 		start = time.perf_counter()
@@ -262,7 +264,7 @@ def softening_plot(soft_values, particle_number, mean_int, mass, x_cord, y_cord,
 	soft_plot, ax_soft = plt.subplots()
 	rad_plot, ax_rad = plt.subplots()
 
-	# get a list of the lenght of the particles, so that only every 100th particle is shown
+	# get a list of the length of the particles, so that only every 100th particle is shown
 	par = list(range(0, len(particle_number), 1))
 
 	for i in soft_values:
@@ -275,18 +277,20 @@ def softening_plot(soft_values, particle_number, mean_int, mass, x_cord, y_cord,
 		r_abs_sort = F_abs_sort.r_abs
 		F_abs_sort = F_abs_sort.F_abs
 
+
 		if i / (10 ** math.floor(math.log10(mean_int))) == 1:
 			# give the softening of order mean inter particle distance red as a color
-			ax_soft.scatter(par, F_abs_sort, color="red", edgecolors='black', label=f'Softening={i:.0e}')
+			ax_soft.scatter(r_abs_sort, F_abs_sort, color="red", edgecolors='black', label=f'Softening={i:.0e}')
 			ax_rad.scatter(r_abs_sort, F_abs_sort, color="red", edgecolors='black', label=f'Softening={i:.0e}')
 		else:
-			ax_soft.scatter(par, F_abs_sort, label=f'Softening={i:.0e}')
+			ax_soft.scatter(r_abs_sort, F_abs_sort, label=f'Softening={i:.0e}')
 			ax_rad.scatter(r_abs_sort, F_abs_sort, label=f'Softening={i:.0e}')
 
 	ax_soft.legend()
 	#plt.xscale("log")
 	ax_soft.set_yscale("log")
-	ax_soft.set_xlabel('Particle Index')
+	ax_soft.set_xscale("log")
+	ax_soft.set_xlabel('Absolute Radius')
 	ax_soft.set_ylabel('Order of Force')
 
 	ax_rad.legend()

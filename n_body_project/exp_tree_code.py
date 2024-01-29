@@ -6,10 +6,6 @@ import numpy as np
 from n_body_shells import max_radius
 
 
-# start out with a quadtree to get the idea
-# TODO when it is running as it should, expand it to an OctTree
-# TODO if possible change it to jitclass (and leave it, when it requires a rewrite of the whole code)
-
 class Point:
 	def __init__(self, x_coordinate, y_coordinate, z_coordinate, mass, ident):
 		self.x = x_coordinate
@@ -53,7 +49,7 @@ class OctTreeNode:
 
 		self.max_items = 1
 		self.theta = theta
-		self.s = self.xmax - self.xmid
+		self.s = self.xmax - self.xmin
 
 
 	def add_point(self, point):
@@ -70,7 +66,6 @@ class OctTreeNode:
 		# if the node has no children.
 		# If the node has children, the point has to be added to the correct child
 		if self.points is not None: # none marks an internal node, so here the particle is added to an exeternal node
-			# TODO calculate the total mass and center of mass of the current node here
 			self.points.append(point)
 			self.calculate_center_of_mass(point) # from here on, each child node has a center of mass and a total mass
 		else:
@@ -102,7 +97,6 @@ class OctTreeNode:
 		for child in self.children:
 			if child.xmin <= point.x <= child.xmax and child.ymin <= point.y <= child.ymax and child.zmin <= point.z <= child.zmax:
 				child.add_point(point)
-				# QUESTION calculate center of mass here for the node
 				# after the point has been added to a child,
 				# further search is not possible
 				break
@@ -120,6 +114,7 @@ class OctTreeNode:
 		return self.total_mass, self.x_com, self.y_com, self.z_com
 
 	def update_center_of_mass(self):
+		# overwrite the values for the node given when there was a particle in the node
 		total_mass = 0
 		x_com = 0
 		y_com = 0
@@ -146,9 +141,9 @@ class OctTreeNode:
 	def calculate_acceleration(self, point):
 		"""Calculate the acceleration acting on a particle
 		The particle has to be added from the main file
-		loop over them to calculate the acceration for each particle"""
+		loop over them to calculate the acceleration for each particle"""
 
-		# if the current node is an external node and it is not body b
+		# if the current node is an external node and if is not body b
 		# then the node has no children, but contains a point
 		if self.points is not None and len(self.points) > 0 and point.ident is not self.points[0].ident:
 			rx = point.x - self.points[0].x
@@ -235,9 +230,6 @@ def tree_code_forces(x_coordinates, y_coordinates, z_coordinates, masses, part_n
 
 	print("Start tree generation")
 
-	start = time.perf_counter()
-
-	# QUESTION should other min and max values be used -> this won't give a square otherwise -> influences the subdivision
 	octtree = OctTreeNode(xmin=np.min(radii), ymin=np.min(radii), zmin=np.min(radii),
 						  xmax=np.max(radii), ymax=np.max(radii), zmax=np.max(radii), theta=theta)
 
@@ -253,10 +245,12 @@ def tree_code_forces(x_coordinates, y_coordinates, z_coordinates, masses, part_n
 		octtree.add_point(point)
 
 	# calculate the forces for each particle
+	print("Start of tree force calculation")
+	start = time.perf_counter()
 	for point_cords in range(len(point_coordinates)):
 		#print(point_cords)
 		point = Point(*point_coordinates[point_cords])
-		acc = octtree.calculate_acceleration(point)
+		octtree.calculate_acceleration(point)
 		ax_accel[point_cords] = point.x_accel
 		ay_accel[point_cords] = point.y_accel
 		az_accel[point_cords] = point.z_accel
@@ -267,6 +261,7 @@ def tree_code_forces(x_coordinates, y_coordinates, z_coordinates, masses, part_n
 	abs_F = np.sqrt(Fx ** 2 + Fy ** 2 + Fz ** 2)
 
 	stop = time.perf_counter()
+	print("End of tree force calculation")
 
 	elapsed = stop - start
 
