@@ -267,7 +267,6 @@ def forces_when_looking_at_shells(shell_masses, shell_boundaries, x_coordinates,
 		if shell_ind > -1:
 			count += 1
 
-
 		# the shell index of a shell without any particle is -1
 		if shell_ind > -1:
 			force = - ((G * shell_masses[shell_ind] * masses[particle]) / radii[particle] ** 2) * unit_vector[particle]
@@ -276,15 +275,10 @@ def forces_when_looking_at_shells(shell_masses, shell_boundaries, x_coordinates,
 			#print(abs_force)
 			absolute_forces.append(abs_force)
 		else:
-			#absolute_forces.append(0)
 			continue
-		print(count)
+		#print(count)
 
 	absolute_forces = np.array(absolute_forces)
-	# print("here")
-	# print(len(absolute_forces))
-	# print(absolute_forces)
-	# print(radii)
 
 	return absolute_forces, radii
 

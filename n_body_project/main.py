@@ -25,13 +25,15 @@ particle_number, mass, x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, softening
 # Task 1: Step 1
 
 # get the density plot
-particle_density_plot = particle_density(mass, x_cord, y_cord, z_cord, bin_number=50)
+particle_density_plot = plot_density_profile(x_cord, y_cord, z_cord, 50, mass)
 particle_density_plot.savefig("n_body_project/plots/density_profile.png")
 # plt.show()
 plt.close(particle_density_plot)
 
 # test time integration
-#leap_frog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, 1, 1)
+leap_frog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, 1, 1)
+
+repetitive_leapfog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, 1, 10, 2)
 
 # ------------------------------------------------------------------------------
 # Task 1: Step 2
@@ -46,8 +48,8 @@ pos = particles_in_hmr(hmr, x_cord, y_cord, z_cord)
 mean_int = mean_inter_particle_separation(pos)
 
 # get values of different order of magnitude for softening
-s = softening_values(mean_int, 3, 3)
-
+s = softening_values(mean_int, 6, 2)
+"""
 # calculate the forces brute force and plot their dependence on the softening
 soft_plot, rad_plot = softening_plot(s, particle_number, mean_int, mass, x_cord, y_cord, z_cord, softening)
 soft_plot.savefig("n_body_project/plots/softening.png")
@@ -77,12 +79,14 @@ ax.scatter(radii, forces_on_particles, color="green", edgecolors='black', label=
 ax.legend()
 fig.savefig("n_body_project/plots/rad.png")
 plt.close(fig)
-
+"""
 # QUESTION we take the half mass radius for this, should we also take just the number of
 # particles included in the half mass radius or all of them
 rel_time, cross_time = relaxation_time(len(particle_number), half_mass, hmr)
 print(f"relaxation time: {rel_time}, crossing time: {cross_time}")
+relaxation_magnitude(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, s, 2, cross_time)
 
+"""
 # -------------------------------------------------------------------------------
 # Task 2: Tree code
 
@@ -123,7 +127,7 @@ print("end")
 # ani.save("leap_frog.mp4")
 #
 # plt.show()
-
+"""
 
 
 

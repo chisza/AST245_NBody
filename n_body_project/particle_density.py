@@ -50,35 +50,16 @@ def hernquist_rho(ind_data, a):
 
 	radius, tot_mass = ind_data
 
+	# FIXME
 	rho = (tot_mass / (2 * np.pi)) * (a / radius) * (1 / ((radius + a) ** 3))
 
 	return rho
 
 
-def particle_density(mass, x_coordinate, y_coordinate, z_coordinate, bin_number):
-	"""Get a plot of the density of the particles and add the estimated
-	density of Hernquist
+def lograthmic_shell_edges(x_cord, y_cord, z_cord, bin_number):
+	"""Split the data into logarithmic shells / bins based on the radius"""
 
-	@param mass: Mass as an array
-	@type mass: np.ndarray
-	@param x_coordinate: x coordinates as an array
-	@type x_coordinate: np.ndarray
-	@param y_coordinate: y coordinates as an array
-	@type y_coordinate: np.ndarray
-	@param z_coordinate: z coordinates as an array
-	@type z_coordinate: np.ndarray
-	@param bin_number: number of bins
-	@type bin_number: int
-	@return: Figure
-	@rtype: plt.Figure
-	"""
-
-	print("Beginning density plot")
-	# Compute the radius of each particle from the center (0, 0, 0)
-	radius = np.sqrt(x_coordinate ** 2 + y_coordinate ** 2 + z_coordinate ** 2)
-
-	# Define the number of radial bins
-	# the particles are distributed in logarithmic fashion
+	radius = np.sqrt(x_cord ** 2 + y_cord **2 + z_cord ** 2)
 
 	# calculate the start and end exponent, as the start value in logspace
 	# is base ** value_given
@@ -89,72 +70,143 @@ def particle_density(mass, x_coordinate, y_coordinate, z_coordinate, bin_number)
 	bins = np.logspace(start_exp, end_exp, bin_number, base=10.0)
 	widths = (bins[1:] - bins[:-1])
 
-	# Compute the histogram of particle counts within radial bins
-	hist, bin_edges = np.histogram(radius, bins=bins)
+	return bins, radius, widths
 
-	# Compute the bin radius (middle of each bin), this is a radius on the logarithmic scale
-	bin_radius = (bin_edges[:-1] + bin_edges[1:]) / 2
 
-	# Compute the inner and outer radii
-	inner_radius = bin_edges[:-1]
-	outer_radius = bin_edges[1:]
+def splitting_data_into_bins(bins, radius):
+	"""Split the data into the shells"""
 
-	# Compute the volume of each bin (spherical shells)
-	# QUESTION
-	# This stays in the logarithmic scale -> does not influence the particles
-	# that are contained in a shell?
-	bin_volume = 4. / 3. * np.pi * (outer_radius ** 3 - inner_radius ** 3)
+	particles_per_bin, bin_edges = np.histogram(radius, bins=bins)
 
-	# Compute the radial number density for each bin
-	# take mass of the shell -> count number of partciles * mass
-	masses_per_shell = hist * np.min(mass)
-	density_per_shell = masses_per_shell / bin_volume
+	# check that the bin edges are still the same
+	#for bin_edge in range(len(bin_edges)):
+		#print(bin_edges[bin_edge], bins[bin_edge])
 
-	# Calculate the error of the density in each bin
-	# This is the absolute error of each shell
-	error_of_density = (np.min(mass) / bin_volume) * np.sqrt(hist)
-	#error_of_density = np.divide(np.min(mass), bin_volume, out=np.zeros_like(hist), where=hist != 0, casting="unsafe") * np.sqrt(hist)
+	return particles_per_bin, bin_edges
 
-	# relative error
-	#rel_density_error = np.divide(np.sqrt(hist), hist, out=np.zeros_like(hist), where=hist != 0, casting="unsafe")
-	#rel_density_error = np.divide(1, np.sqrt(hist), out=np.zeros_like(hist), where=hist != 0, casting="unsafe")
-	#rel_density_error = np.divide(error_of_density, density_per_shell, out=np.zeros_like(error_of_density), where=density_per_shell != 0)
 
-	# fit the data
+def masses_per_bin(particles_per_bin, masses):
+	"""Calculate the mass enclosed in each bin"""
 
-	# get the total total_mass of the system and give it as an array so it can be used
-	tot_mass = np.sum(mass)
-	tot_mass_array = np.zeros_like(bin_radius)
-	tot_mass_array.fill(tot_mass)
+	# all particles have the same mass -> just multiply the number of
+	# particles in each bin with the mass of a single particle
+	masses_in_bin = particles_per_bin * np.min(masses)
 
-	# set an initial guess for the parameter a, that should be fitted
-	initial_guess = 0.1
+	return masses_in_bin
 
-	# return the fitted parameter a and the covariance
-	# maxfev extends the default number of iterations so that the
-	# fittted a can be found
-	params = curve_fit(hernquist_rho, (bin_radius, tot_mass_array),
-						density_per_shell, p0=initial_guess, maxfev=100000)
-						#sigma=rel_density_error) # QUESTION how does that work, when implementing it, the value always goes to the inital guess and it divides by 0 as there are empty bins
 
-	# Extract the fitted parameters
-	fitted_a = params[0]
+def volume_per_bin(bin_edges):
+	"""Calculate the volume for each bin as they are actually shells"""
 
-	# Generate the fitted curve using the fitted a
-	fitted_curve = hernquist_rho((bin_radius, tot_mass), fitted_a)
+	volume_in_bin = 4. / 3. * np.pi * (bin_edges[1:] ** 3 - bin_edges[:-1] ** 3)
 
-	# Plot the radial number density profile
-	particle_density_plot = plt.figure()
-	plt.bar(bin_radius, density_per_shell, width=widths, label="Particle Density")
-	plt.errorbar(bin_radius, density_per_shell, xerr=None, yerr=error_of_density, color="orange", ls="none")
-	plt.plot(bin_radius, fitted_curve, linestyle='--', color="red", label="Hernquist density")
-	plt.title('Radial Number Density Profile')
-	plt.legend()
-	plt.xlabel('Radius')
-	plt.xscale("log")
-	plt.ylabel('Number Density')
-	plt.yscale("log")
+	return volume_in_bin
+
+
+def density_in_bin(masses_in_bin, volume_in_bin):
+	"""Calculate the density in each bin"""
+
+	density_in_bin = masses_in_bin / volume_in_bin
+
+	return density_in_bin
+
+
+def error_of_density(density_in_bin, shell_volumes, number_of_particles, masses):
+	"""Calculate the error of the density distribution"""
+
+	abs_error_of_density = (np.min(masses) / shell_volumes) * np.sqrt(number_of_particles)
+
+	relative_error_of_density = np.divide(abs_error_of_density, density_in_bin, out=np.zeros_like(density_in_bin),
+										  where=density_in_bin != 0)
+
+	return abs_error_of_density, relative_error_of_density
+
+
+def hernquist_fit(bin_edges, masses, density_in_bin, sigma = None):
+	"""Fit the data to the Hernquist profile to get an estimate for a,
+	then calculate the expected densities with appling the calculated a"""
+
+	# get the average radius for each bin
+	bin_radii = (bin_edges[1:] + bin_edges[:-1]) / 2
+
+	tot_mass_system = np.empty(len(bin_radii))
+	tot_mass_system.fill(np.sum(masses))
+	#print(len(bin_radii))
+	#print(len(density_in_bin))
+	# get an estimate for scale length a
+	inital_guess = 0.1
+
+	param, param_cov = curve_fit(hernquist_rho, (bin_radii, tot_mass_system),
+								 density_in_bin, p0=inital_guess, sigma=sigma, maxfev=100000)
+	#print(param, param[0])
+
+	# get the expected values based on the Hernquist profile and the estimated parameter
+	expected_density_per_bin = hernquist_rho((bin_radii, tot_mass_system), param[0])
+
+	return expected_density_per_bin, bin_radii
+
+
+def error_measured_vs_expected(measured_density, expected_density_per_bin, particle_number, masses_per_shell, shell_volume):
+	"""Compare the measured and the expected density of the particle distribution"""
+
+	abs_error = np.mean(measured_density - expected_density_per_bin)
+
+	rel_error = np.divide(abs_error, measured_density, out=np.zeros_like(measured_density), where= measured_density != 0)
+
+	# expected number of particles
+	exp_number_part = np.divide((expected_density_per_bin * shell_volume), masses_per_shell,
+								out=np.zeros_like(masses_per_shell), where= masses_per_shell != 0)
+
+	lambd = np.sqrt(np.mean(exp_number_part) / particle_number)
+
+	return abs_error, rel_error, lambd
+
+
+def plot_density_profile(x_cord, y_cord, z_cord, bin_number, masses):
+	"""Plot the density measured based on the particles associated with the radii
+	and compare it with the expected density based on the Hernquist profile"""
+
+	# get the shell edges
+	bins, radius, widths = lograthmic_shell_edges(x_cord, y_cord, z_cord, bin_number)
+
+	# split data into shells
+	number_of_particles_per_bin, bin_edges = splitting_data_into_bins(bins, radius)
+
+	# calculate the mass enclosed in each shell
+	shell_masses = masses_per_bin(number_of_particles_per_bin, masses)
+
+	# calculate the volume of each shell
+	shell_volumes = volume_per_bin(bin_edges)
+
+	# calculate the density in each shell
+	shell_density_measured = density_in_bin(shell_masses, shell_volumes)
+
+	# FIXME calculate the error from the actual density distribution
+	abs_error, rel_error = error_of_density(shell_density_measured, shell_volumes, len(x_cord), masses)
+
+	# calculate the density expected by the Hernquist profile
+	expected_density_per_bin, bin_radii = hernquist_fit(bin_edges, masses, shell_density_measured, sigma=abs_error)
+
+	# calculate the comparison error
+	abs_error_comp, rel_error_comp, lambd = error_measured_vs_expected(shell_density_measured, expected_density_per_bin,
+																	   len(x_cord), shell_masses, shell_volumes)
+
+	# plot everything
+
+	fig, ax = plt.subplots()
+
+	ax.bar(bin_radii, shell_density_measured, width=widths,label="Number Density Measured")
+	ax.errorbar(bin_radii, shell_density_measured, xerr=None, yerr=abs_error, color="orange", ls="none")
+	ax.plot(bin_radii, expected_density_per_bin, c="red", label="Expected Number Density (Hernquist)")
+
+	ax.set_title("Radial Number Density Profile")
+	ax.legend()
+	ax.set_xlabel("Radius")
+	ax.set_ylabel("Number Density")
+	ax.set_xscale("log")
+	ax.set_yscale("log")
 
 	print("Finished the density plot")
 
-	return particle_density_plot
+	return fig
+

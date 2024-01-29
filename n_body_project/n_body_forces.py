@@ -35,10 +35,9 @@ def direct_force_calculation(mass, x_cord, y_cord, z_cord, softening):
 	Fx, Fy, Fz, abs_F = np.zeros_like(x_cord), np.zeros_like(y_cord), np.zeros_like(z_cord), np.zeros_like(x_cord)
 
 	if isinstance(softening, int):
-		softening = [softening * len(x_cord)]
+		softening = [softening] * len(x_cord)
 
 	print("Begin brute force calculation")
-	print(softening)
 
 	with objmode(start='f8'):
 		start = time.perf_counter()
@@ -106,13 +105,18 @@ def half_mass_radius(x_coordinate, y_coordinate, z_coordinate, mass):
 	# calculate the total total_mass of the system
 	tot_mass = np.sum(mass)
 
+	# all particles have the same mass
+	mass_part = np.min(mass)
+
 	# calculate half of the total_mass
 	half_mass = tot_mass / 2.
 	acc_mass = 0
 	# all particles have the same mass
 	for i in range(len(x_coordinate)):
 		if acc_mass <= half_mass:
-			acc_mass += mass[i]
+			acc_mass += mass_part
+			# gives the index of the half mass radius
+			# as the absolute radii were sorted
 			ind = i
 		else:
 			break
@@ -124,6 +128,7 @@ def half_mass_radius(x_coordinate, y_coordinate, z_coordinate, mass):
 	return half_mass_r, half_mass
 
 
+@jit(nopython=True, parallel=True)
 def particles_in_hmr(half_mass_radius, x_coordinate, y_coordinate, z_coordinate):
 	"""Calculate the particles that are within the half total_mass radius
 
@@ -151,11 +156,17 @@ def particles_in_hmr(half_mass_radius, x_coordinate, y_coordinate, z_coordinate)
 	z_coordinate = np.sort(z_coordinate)
 
 	radii = np.sqrt(x_coordinate ** 2 + y_coordinate ** 2 + z_coordinate ** 2)
-	radii = np.sort(radii)
 
-	# Replace the loop for filtering particles with array slicing
-	mask = radii <= half_mass_radius
-	positions = np.array([x_coordinate[mask], y_coordinate[mask], z_coordinate[mask]]).T
+	positions = np.zeros((len(x_coordinate), 3))
+
+	for r in prange(len(radii)):
+		if radii[r] <= half_mass_radius:
+			x_pos, y_pos, z_pos = x_coordinate[r], y_coordinate[r], z_coordinate[r]
+			positions[r][0] = x_pos
+			positions[r][1] = y_pos
+			positions[r][2] = z_pos
+		else:
+			continue
 
 	return positions
 
@@ -192,6 +203,9 @@ def mean_inter_particle_separation(positions):
 			sum_dist_arr[i] += distance
 
 	sum_dist = np.sum(sum_dist_arr)
+	# QUESTION
+	# to get now the mean distance, divide by the number of distances summed up in total
+	# so the number of particles times the number of interactions
 	mean_dist = sum_dist / (number_part * (number_part - 1))
 
 	return mean_dist
@@ -212,7 +226,7 @@ def softening_values(mean_dist, exp, step_size):
 
 	exp_of_mean_dist = math.floor(math.log10(mean_dist))
 	n = 10 ** exp_of_mean_dist
-	exp = list(range(-exp, exp + 1, step_size))
+	exp = list(range(-exp+1, exp, step_size))
 	softs = []
 	for i in exp:
 		softs.append(n * (10 ** i))
