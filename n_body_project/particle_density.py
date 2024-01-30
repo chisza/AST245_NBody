@@ -186,10 +186,6 @@ def plot_density_profile(x_cord, y_cord, z_cord, bin_number, masses):
 	# calculate the density expected by the Hernquist profile
 	expected_density_per_bin, bin_radii = hernquist_fit(bin_edges, masses, shell_density_measured, sigma=abs_error)
 
-	# calculate the comparison error
-	abs_error_comp, rel_error_comp, lambd = error_measured_vs_expected(shell_density_measured, expected_density_per_bin,
-																	   len(x_cord), shell_masses, shell_volumes)
-
 	# plot everything
 
 	fig, ax = plt.subplots()

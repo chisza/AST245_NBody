@@ -1,7 +1,5 @@
 # libraries
 
-# TODO put failsaves in all function to make sure all particles are processed and in the right order / index
-
 # my functions
 from particle_density import *
 from n_body_forces import *
@@ -19,7 +17,6 @@ data = np.loadtxt("n_body_project/data/data.txt")
 # extract the data
 particle_number, mass, x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, softening, potential = data_extraction(data)
 
-# all data in Planck units
 # ------------------------------------------------------------------------------
 
 # Task 1: Step 1
@@ -29,11 +26,6 @@ particle_density_plot = plot_density_profile(x_cord, y_cord, z_cord, 50, mass)
 particle_density_plot.savefig("n_body_project/plots/density_profile.png")
 # plt.show()
 plt.close(particle_density_plot)
-
-# test time integration
-#leap_frog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, 1, 1)
-
-#repetitive_leapfog(x_cord, y_cord, z_cord, vx_vel, vy_vel, vz_vel, mass, 1, 10, 2)
 """
 # ------------------------------------------------------------------------------
 # Task 1: Step 2
@@ -48,9 +40,10 @@ pos = particles_in_hmr(hmr, x_cord, y_cord, z_cord)
 mean_int = mean_inter_particle_separation(pos)
 
 # get values of different order of magnitude for softening
-s = softening_values(mean_int, 9, 3)
-print(s)
+s = softening_values(mean_int, 7, 3)
+
 """
+
 # calculate the forces brute force and plot their dependence on the softening
 soft_plot, rad_plot = softening_plot(s, particle_number, mean_int, mass, x_cord, y_cord, z_cord, softening)
 soft_plot.savefig("n_body_project/plots/softening.png")
@@ -85,7 +78,7 @@ print(f"relaxation time: {rel_time}, crossing time: {cross_time}")
 # -------------------------------------------------------------------------------
 # Task 2: Tree code
 
-#angles = opening_angles(0.8, 1, 2)
+#angles = opening_angles(0.3, 0.9, 3)
 
 #tree_plots = repetitive_tree_code(x_cord, y_cord, z_cord, mass, particle_number, angles)
 

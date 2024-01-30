@@ -151,12 +151,6 @@ def particles_in_hmr(half_mass_radius, x_coordinate, y_coordinate, z_coordinate)
 
 	# get a list of the particles within the half total_mass radius
 	# get that for all coordinates
-	# is the complete radius, that is relevant, not the single coordinates
-	# get the radius for each particle and sort them
-	x_coordinate = np.sort(x_coordinate)
-	y_coordinate = np.sort(y_coordinate)
-	z_coordinate = np.sort(z_coordinate)
-
 	radii = np.sqrt(x_coordinate ** 2 + y_coordinate ** 2 + z_coordinate ** 2)
 
 	positions = np.zeros((len(x_coordinate), 3))
@@ -205,7 +199,6 @@ def mean_inter_particle_separation(positions):
 			sum_dist_arr[i] += distance
 
 	sum_dist = np.sum(sum_dist_arr)
-	# QUESTION
 	# to get now the mean distance, divide by the number of distances summed up in total
 	# so the number of particles times the number of interactions
 	mean_dist = sum_dist / (number_part * (number_part - 1))

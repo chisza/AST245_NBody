@@ -25,7 +25,7 @@ def leap_frog(x_cord, y_cord, z_cord, vel_x, vel_y, vel_z, masses, softening, h)
 	r_step_half_z = z_cord + 0.5 * h * vel_z
 
 	# calculate all the accelerations at once
-	acceleration = direct_force_calculation(masses, r_step_half_x, r_step_half_y, r_step_half_z, softening)[2]
+	abs_f, abs_r, acceleration = direct_force_calculation(masses, r_step_half_x, r_step_half_y, r_step_half_z, softening)
 
 	# kick motion: calculate the new velocity
 	v_step_one_x = vel_x + h * acceleration[0]
@@ -76,7 +76,7 @@ def repetitive_leapfog(x_cord, y_cord, z_cord, vel_x, vel_y, vel_z, masses, soft
 		print(f"done {i}")
 
 		# TODO return something for plotting
-	return x_cord, y_cord, z_cord
+	return x_cord, y_cord, z_cord, vel_x, vel_y, vel_z
 
 
 def relaxation_magnitude(x_cord, y_cord, z_cord, vel_x, vel_y, vel_z, masses, softening, t_cross, t_relax):
